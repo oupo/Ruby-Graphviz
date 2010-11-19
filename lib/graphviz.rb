@@ -527,7 +527,7 @@ class GraphViz
           if @filename.nil? or @filename == String
             xOutputWithoutFile = "-T#{@format} "
           else
-            xOutputWithFile = "-T#{@format} -o#{@filename} "
+            xOutputWithFile = "-T#{@format} -o#{fix_path_if_cygwin(@filename)} "
           end
         end
         @output.each_except( :key => ["none"] ) do |format, file|
@@ -535,7 +535,7 @@ class GraphViz
           if file.nil? or file == String
             xOutputWithoutFile << "-T#{format} "
           else
-            xOutputWithFile << "-T#{format} -o#{file} "
+            xOutputWithFile << "-T#{format} -o#{fix_path_if_cygwin(file)} "
           end
         end
         
@@ -546,16 +546,9 @@ class GraphViz
         
         if IS_JRUBY
           xCmd = "#{cmd} -q#{@errors} #{xExternalLibraries} #{xOutputWithFile} #{xOutputWithoutFile} #{t.path}"
-        elsif IS_CYGWIN
-          tmpPath = t.path
-          begin
-            tmpPath = "'" + `cygpath -w #{t.path}`.chomp + "'"
-          rescue
-            warn "cygpath is not installed!"
-          end
-          xCmd = "\"#{cmd}\" -q#{@errors} #{xExternalLibraries} #{xOutputWithFile} #{xOutputWithoutFile} #{tmpPath}"
         else
-          xCmd = "\"#{cmd}\" -q#{@errors} #{xExternalLibraries} #{xOutputWithFile} #{xOutputWithoutFile} #{t.path}"
+          tmpPath = fix_path_if_cygwin(t.path)
+          xCmd = "\"#{cmd}\" -q#{@errors} #{xExternalLibraries} #{xOutputWithFile} #{xOutputWithoutFile} #{tmpPath}"
         end
 
         xOutput << output_from_command( xCmd )

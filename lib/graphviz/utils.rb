@@ -75,4 +75,15 @@ module GVUtils
    end
   end
   
+  def fix_path_if_cygwin(path) #:nodoc:
+    if IS_CYGWIN
+      begin
+        return "'" + `cygpath -w #{path}`.chomp + "'"
+      rescue
+        warn "cygpath is not installed!"
+      end
+    end
+    path
+  end
+  
 end
